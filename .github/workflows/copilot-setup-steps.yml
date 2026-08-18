@@ -1,0 +1,48 @@
+name: "Copilot Setup Steps"
+
+# Este workflow prepara el entorno efimero donde corre el cloud agent de Copilot.
+# Se ejecuta ANTES de que el agente empiece a trabajar, de modo que el agente
+# encuentra las dependencias ya instaladas y puede correr las pruebas de inmediato.
+#
+# Se dispara solo cuando cambia este archivo, y se puede lanzar a mano desde la
+# pestana Actions para validar que sigue funcionando.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # El job DEBE llamarse exactamente 'copilot-setup-steps'.
+  # Si se renombra, Copilot deja de detectarlo y el agente arranca con un
+  # entorno vacio.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      # Lo minimo para hacer checkout. El agente no necesita mas en esta fase.
+      contents: read
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Instalar dependencias de forma determinista
+        run: npm ci
+
+      - name: Verificacion de humo del entorno
+        # Si esto falla, el agente arrancaria sobre un entorno roto.
+        # Es preferible enterarse aqui.
+        run: |
+          npm run typecheck
+          npm test
