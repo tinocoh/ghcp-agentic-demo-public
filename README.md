@@ -72,3 +72,17 @@ npm run typecheck
 npm run lint
 npm test
 ```
+
+## Material base para sesion guiada
+
+Este repo publico incluye ejercicios en `ejercicios/` para ejecutar una sesion de
+GHCP App aun cuando no sea posible usar Issues en ese entorno.
+
+Flujo recomendado para participantes:
+
+```bash
+git fetch https://github.com/tinocoh/ghcp-agentic-demo-public.git main
+git checkout -B main FETCH_HEAD
+git clean -fd
+npm run typecheck && npm run lint && npm test
+```
